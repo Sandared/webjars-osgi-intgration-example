@@ -101,7 +101,7 @@
 			Bundle-Description: ${project.description}
 			-resourceonly:true
 			WebJars-Resource: /META-INF/resources/webjars/${project.artifactId}/${project.version}
-			Provide-Capability: org.webjars.bower;${project.artifactId}:List<String>=${project.version}
+			Provide-Capability: ${project.groupId};${project.artifactId}:List<String>=${project.version}
 			Require-Capability: org.webjars.bower;filter:="(github-com-webcomponents-shadycss=1.1.1)",\
 								org.webjars.bower;filter:="(github-com-webcomponents-webcomponentsjs=1.1.0)"
 			]]></bnd>
