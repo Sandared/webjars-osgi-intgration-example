@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+    
+    <packaging>jar</packaging>
+    <groupId>org.webjars.bower</groupId>
+    <artifactId>polymer</artifactId>
+    <version>2.4.0</version>
+    <name>Polymer</name>
+    <description>WebJar for Polymer</description>
+    <url>http://webjars.org</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <upstream.url>https://github.com/Polymer/polymer/archive/v2.4.0.zip</upstream.url>
+        <destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</destDir>
+    </properties>
+
+    <developers>
+        <developer>
+            <id>thomasdriessen</id>
+            <name>Thomas Driessen</name>
+            <email>thomas.driessen.td@gmail.com</email>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>BSD</name>
+            <url>https://github.com/Polymer/polymer/blob/master/LICENSE.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    
+    <dependencies>
+       <dependency>
+		<groupId>org.webjars.bower</groupId>
+		<artifactId>github-com-webcomponents-shadycss</artifactId>
+		<version>1.1.1</version>
+	  </dependency>
+	  <dependency>
+		<groupId>org.webjars.bower</groupId>
+		<artifactId>github-com-webcomponents-webcomponentsjs</artifactId>
+		<version>1.1.0</version>
+	  </dependency>
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.jamesward</groupId>
+                <artifactId>unsnapshot-maven-plugin</artifactId>
+                <version>0.2</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>unsnapshot</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals><goal>run</goal></goals>
+                        <configuration>
+                            <target>
+                                <echo message="download archive"/>
+                                <get src="${upstream.url}" dest="${project.build.directory}/${project.artifactId}.zip"/>
+                                <echo message="unzip archive"/>
+                                <unzip src="${project.build.directory}/${project.artifactId}.zip" dest="${project.build.directory}"/>
+                                <echo message="moving resources"/>
+                                <move todir="${destDir}">
+                                    <fileset dir="${project.build.directory}/${project.artifactId}-${version.unsnapshot}"/>
+                                </move>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+			
+			<plugin>
+				<groupId>biz.aQute.bnd</groupId>
+				<artifactId>bnd-maven-plugin</artifactId>
+				<configuration>
+					<bnd><![CDATA[
+			Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
+			Bundle-Version:	 ${project.version}
+			Bundle-Description: ${project.description}
+			-resourceonly:true
+			WebJars-Resource: /META-INF/resources/webjars/${project.artifactId}/${project.version}
+			Provide-Capability: org.webjars.bower;${project.artifactId}:List<String>=${project.version}
+			Require-Capability: org.webjars.bower;filter:="(github-com-webcomponents-shadycss=1.1.1)",\
+								org.webjars.bower;filter:="(github-com-webcomponents-webcomponentsjs=1.1.0)"
+			]]></bnd>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>bnd-process</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Required to make the maven-jar-plugin pick up the bnd 
+                    generated manifest. Also avoid packaging empty Jars -->
+			<plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.0.2</version>
+                    <configuration>
+                        <archive>
+                            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                        </archive>
+                        <skipIfEmpty>true</skipIfEmpty>
+                    </configuration>
+                </plugin>
+        </plugins>
+    </build>
+
+</project>
